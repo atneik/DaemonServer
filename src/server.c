@@ -7,6 +7,8 @@
 
 #include "shared.h"
 
+volatile sig_atomic_t keep_going = 1; /* controls program termination */
+
 void sigchld_handler(int s)
 {
 	while(waitpid(-1, NULL, WNOHANG) > 0);
@@ -22,7 +24,14 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-int main(void)
+
+void termination_handler (int signum)
+{
+    keep_going = 0;
+    signal (signum, termination_handler);
+}
+
+int main(int argc, char **argv)
 {
 	int sockfd, new_fd,numbytes;  // listen on sock_fd, new connection on new_fd
 	char buf[MAXDATASIZE];
@@ -36,6 +45,42 @@ int main(void)
     pid_t tempPid;
     PACKET tempPacket;
     
+    if (argc==2 && (strcmp("-d",argv[1])==0)) {
+        printf("== Daemon mode selected.==\n");
+        
+#define Daemon
+        
+    }
+    
+#ifdef Daemon
+    
+     // Become a daemon:
+     switch (fork ())
+     {
+     case -1:                    // can't fork 
+     perror ("fork()");
+     exit (3);
+     case 0:                     // child, process becomes a daemon:
+     close (STDIN_FILENO);
+     close (STDOUT_FILENO);
+     close (STDERR_FILENO);
+     if (setsid () == -1)      // request a new session (job control)
+     {
+     exit (4);
+     }
+     break;
+     default:                    // parent returns to calling process: 
+     return 0;
+     }
+     
+     // Establish signal handler to clean up before termination:
+     if (signal (SIGTERM, termination_handler) == SIG_IGN)
+     signal (SIGTERM, SIG_IGN);
+     signal (SIGINT, SIG_IGN);
+     signal (SIGHUP, SIG_IGN);
+     
+#endif
+    
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
@@ -45,6 +90,8 @@ int main(void)
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 		return 1;
 	}
+    
+
 
 	// loop through all the results and bind to the first we can
 	for(p = servinfo; p != NULL; p = p->ai_next) {
@@ -89,9 +136,11 @@ int main(void)
 		exit(1);
 	}
 
-	printf("server: waiting for connections...\n");
-
-	while(1) {  // main accept() loop
+    
+    printf("server: waiting for connections...\n");
+    
+	while(keep_going) 
+    {  // main accept() loop
 		sin_size = sizeof their_addr;
 		new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
 		if (new_fd == -1) {
@@ -149,4 +198,5 @@ int main(void)
 
 	return 0;
 }
+
 

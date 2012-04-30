@@ -10,11 +10,18 @@ Read me for DaemonServer
 Contents
 =============================
 	1.	About
+	
 	2.	Build & Run
 		2.1	*nix
 		2.2	Windows VS
 		2.3	Xcode
+	
 	3.	Usage
+		3.1 Client
+		3.2 Server
+		3.3 Server as daemon
+		3.4 How to kill a daemon Server
+	
 	4.	DOC
 
 1.	About
@@ -84,14 +91,24 @@ cd to the root of the package then:
 
 3.1	Client
 -----------------------------
-	./Client [hostname]
+	$ ./Client [hostname]
 
-	Eg: ./Client localhost
+	Eg: $. /Client localhost
 
 3.2	Server
 -----------------------------
-	./Server
+	$. /Server
 
+3.2	Server as daemon
+-----------------------------
+	$. /Server -d
+
+3.4	How to Kill daemon Server
+-----------------------------
+Send the kill signal to the daemon process.
+
+	$ sudo ps -ax | grep Server
+	$ sudo kill -s kill [PID]
 
 4	DOC
 =============================
