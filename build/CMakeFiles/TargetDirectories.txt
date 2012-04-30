@@ -1,0 +1,3 @@
+/Users/atneik/dev/jiit/sp/mp2/DaemonServer/build/src/CMakeFiles/Client.dir
+/Users/atneik/dev/jiit/sp/mp2/DaemonServer/build/src/CMakeFiles/Server.dir
+/Users/atneik/dev/jiit/sp/mp2/DaemonServer/build/src/CMakeFiles/Shared.dir

@@ -1,0 +1,1 @@
+/usr/bin/gcc   -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/Server.dir/server.c.o  -o Server  -L/Users/atneik/dev/jiit/sp/mp2/DaemonServer/src libShared.a 

@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/atneik/dev/jiit/sp/mp2/DaemonServer/src/shared.c
+shared.h
+/Users/atneik/dev/jiit/sp/mp2/DaemonServer/src/shared.h
+
+/Users/atneik/dev/jiit/sp/mp2/DaemonServer/src/shared.h
+stdio.h
+-
+stdlib.h
+-
+unistd.h
+-
+errno.h
+-
+string.h
+-
+sys/types.h
+-
+sys/socket.h
+-
+netinet/in.h
+-
+netdb.h
+-
+arpa/inet.h
+-
+sys/wait.h
+-
+signal.h
+-
+

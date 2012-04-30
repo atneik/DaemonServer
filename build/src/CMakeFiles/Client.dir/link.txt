@@ -1,0 +1,1 @@
+/usr/bin/gcc   -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/Client.dir/client.c.o  -o Client  -L/Users/atneik/dev/jiit/sp/mp2/DaemonServer/src libShared.a 

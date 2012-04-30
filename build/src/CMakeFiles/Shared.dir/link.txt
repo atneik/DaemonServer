@@ -1,0 +1,2 @@
+/usr/bin/ar cr libShared.a  CMakeFiles/Shared.dir/shared.c.o
+/usr/bin/ranlib libShared.a
