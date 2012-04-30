@@ -4,7 +4,7 @@
 ** Ref: W. Richard Stevens' UNIX Network Programming 2nd edition.
 */
 
-Read me for Prod-Cons
+Read me for DaemonServer
 =============================
 
 Contents
@@ -19,7 +19,7 @@ Contents
 
 1.	About
 =============================
-A simple command line solution for the Producer Consumer problem using System V IPC.
+A basic Client-Server supporting multiple clients with an option of running Server in the background.
 
 2.	Build & Run
 =============================
@@ -80,18 +80,18 @@ If no errors you will see Xcode's solution in the default dir.
 3	Usage 
 =============================
 
-3.1	Producer
+cd to the root of the package then:
+
+3.1	Client
 -----------------------------
-	./Producer [String] [delay]
+	./Client [hostname]
 
-	String: array of characters to be produced.
-	delay:	delay in seconds.
+	Eg: ./Client localhost
 
-3.2	Consumer
+3.2	Server
 -----------------------------
-	./Consumer [delay]
+	./Server
 
-	delay:	delay in seconds.
 
 4	DOC
 =============================
