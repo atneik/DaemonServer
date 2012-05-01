@@ -35,4 +35,6 @@ sys/wait.h
 -
 signal.h
 -
+syslog.h
+-
 

@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
 	char s[INET6_ADDRSTRLEN];
     PACKET tempPacket;
 
-	if (argc != 2) {
-	    fprintf(stderr,"usage: client hostname\n");
+	if (argc != 3) {
+	    fprintf(stderr,"usage: client [hostname] [mnemonic name]\n");
 	    exit(1);
 	}
 
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 
     
     //send reg
-    generatePacket(&tempPacket, MSG_HEAD_REG, getpid());
+    generatePacket(&tempPacket, MSG_HEAD_REG, getpid(), argv[2]);
     
     if (send(sockfd, (void*)&tempPacket, sizeof(tempPacket), 0) == -1)
         perror("send");
@@ -86,11 +86,11 @@ int main(int argc, char *argv[])
     if (tempPacket.packet_head.type==MSG_HEAD_REG_ACK) {
         
     
-	printf("client: received ACK for reg from pid:'%d'\n",tempPacket.packet_head.sender_pid);
+	printf("client(%d): received ACK for reg from server(%d)\n",getpid(),tempPacket.packet_head.sender_pid);
     }
     getchar();
     //Send msg
-    generatePacket(&tempPacket, MSG_HEAD_NORMAL, getpid());
+    generatePacket(&tempPacket, MSG_HEAD_NORMAL, getpid(), argv[2]);
     addMsg(&tempPacket,"Hello Server!");
     if (send(sockfd, (void*)&tempPacket, sizeof(tempPacket), 0) == -1)
         perror("send");
@@ -105,12 +105,12 @@ int main(int argc, char *argv[])
     if (tempPacket.packet_head.type==MSG_HEAD_NORMAL_ACK) {
         
         
-        printf("client: received ACK for msg from pid:'%d'\n",tempPacket.packet_head.sender_pid);
+        printf("client(%d): received ACK for msg from server(%d)\n",getpid(),tempPacket.packet_head.sender_pid);
     }
     getchar();
     
     //send dereg
-    generatePacket(&tempPacket, MSG_HEAD_DEREG, getpid());
+    generatePacket(&tempPacket, MSG_HEAD_DEREG, getpid(), argv[2]);
     
     if (send(sockfd, (void*)&tempPacket, sizeof(tempPacket), 0) == -1)
         perror("send");
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     if (tempPacket.packet_head.type==MSG_HEAD_DEREG_ACK) {
         
         
-        printf("client: received ACK for dereg  from pid:'%d'\n",tempPacket.packet_head.sender_pid);
+        printf("client(%d): received ACK for dereg  from server(%d)\n",getpid(),tempPacket.packet_head.sender_pid);
     }
 
 

@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <syslog.h>
 
 
 #define MSG_HEAD_REG 1
@@ -25,6 +26,7 @@
 #define MSG_HEAD_REG_ACK 4
 #define MSG_HEAD_DEREG_ACK 5
 #define MSG_HEAD_NORMAL_ACK 6
+#define MSG_HEAD_ERROR 7
 
 #define MAX_MSG_SIZE 50
 #define PORT "4461" // the port client will be connecting to 
@@ -36,6 +38,7 @@
 typedef struct
 {
     int type;
+    char mid[20];
     pid_t sender_pid;
     pid_t receiver_pid;
     
@@ -55,5 +58,5 @@ typedef struct
     
 } PACKET;
 
-void generatePacket(PACKET *, int, pid_t);
+void generatePacket(PACKET *, int, pid_t, char*);
 int addMsg(PACKET *,char *);

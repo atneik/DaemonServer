@@ -3,11 +3,13 @@
 ** Aniket Handa
 ** GNU GPL v3
 ** Ref: W. Richard Stevens' UNIX Network Programming 2nd edition.
+**      Beej's guide to network programming.
 */
 
 #include "shared.h"
 
 volatile sig_atomic_t keep_going = 1; /* controls program termination */
+int daemonFlag =0;
 
 void sigchld_handler(int s)
 {
@@ -48,29 +50,30 @@ int main(int argc, char **argv)
     if (argc==2 && (strcmp("-d",argv[1])==0)) {
         printf("== Daemon mode selected.==\n");
         
-#define Daemon
+        daemonFlag=1;
         
     }
     
-#ifdef Daemon
+    if (daemonFlag) {
+
     
      // Become a daemon:
      switch (fork ())
      {
      case -1:                    // can't fork 
-     perror ("fork()");
-     exit (3);
+             perror ("fork()");
+             exit (0);
      case 0:                     // child, process becomes a daemon:
-     close (STDIN_FILENO);
-     close (STDOUT_FILENO);
-     close (STDERR_FILENO);
-     if (setsid () == -1)      // request a new session (job control)
-     {
-     exit (4);
-     }
-     break;
+             close (STDIN_FILENO);
+             close (STDOUT_FILENO);
+             close (STDERR_FILENO);
+             if (setsid () == -1)      // request a new session (job control)
+             {
+                 exit (0);
+             }
+             break;
      default:                    // parent returns to calling process: 
-     return 0;
+             return 0;
      }
      
      // Establish signal handler to clean up before termination:
@@ -79,7 +82,7 @@ int main(int argc, char **argv)
      signal (SIGINT, SIG_IGN);
      signal (SIGHUP, SIG_IGN);
      
-#endif
+    }
     
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
@@ -137,7 +140,7 @@ int main(int argc, char **argv)
 	}
 
     
-    printf("server: waiting for connections...\n");
+    printf("server(%d): waiting for connections...\n",getpid());
     
 	while(keep_going) 
     {  // main accept() loop
@@ -151,17 +154,20 @@ int main(int argc, char **argv)
 		inet_ntop(their_addr.ss_family,
 			get_in_addr((struct sockaddr *)&their_addr),
 			s, sizeof s);
-		printf("server: got connection from %s\n", s);
+		printf("server(%d): got connection from %s\n", getpid(),s);
 
 		if (!fork()) { // this is the child process
-			close(sockfd); // child doesn't need the listener
+    
+            close(sockfd); // child doesn't need this descriptor
+            openlog("DaemonServer",LOG_PID,LOG_SYSLOG);
             
-            
-            while (1) {
+            while (tempType!=2) {//child stops when client deregisters
+                
+                
                 //recv packet
                 
-                if ((numbytes = recv(new_fd, (void*)&tempPacket, 
-                                     sizeof(tempPacket), 0)) == -1) {
+                if (recv(new_fd, (void*)&tempPacket, 
+                                     sizeof(tempPacket), 0) == -1) {
                     perror("recv");
                     break;
                 }
@@ -171,25 +177,36 @@ int main(int argc, char **argv)
                 
                 if (tempType<=3) {
                     
-                printf("server: received msg type:'%d' from pid:'%d' \n",
-                       tempType,tempPid);
-			
-                generatePacket(&tempPacket, tempType+3, getpid());
+                printf("server(%d): received msg type:'%d' from %s-client(%d) \n",getpid(),
+                       tempType,tempPacket.packet_head.mid,tempPid);
+                    
+                    syslog(LOG_NOTICE, "server(%d): received msg type:'%d' from %s-client(%d) \n",getpid(),
+                           tempType,tempPacket.packet_head.mid,tempPid);
+                   
+                if (tempType==MSG_HEAD_NORMAL) {
+                    
+                    printf("server(%d): received following msg string from %s-client(%d): %s \n",getpid(),tempPacket.packet_head.mid,tempPid,tempPacket.packet_body.charbody);
+                    
+                    syslog(LOG_NOTICE, "server(%d): received following msg string from %s-client(%d): %s \n",getpid(),tempPacket.packet_head.mid,tempPid,tempPacket.packet_body.charbody);
+                }
+                    
+                //generate ACKs
+                    printf("server(%d): sent ACK type:'%d' to %s-client(%d)\n",getpid(),
+                           tempType+3,tempPacket.packet_head.mid,tempPid);
+                    syslog(LOG_NOTICE, "server(%d): received following msg string from %s-client(%d): %s \n",getpid(),tempPacket.packet_head.mid,tempPid,tempPacket.packet_body.charbody);
+                    generatePacket(&tempPacket, tempType+3, getpid(), "Server");
                 
-                    if (tempType==MSG_HEAD_NORMAL) {
-                        printf("server: received msg string:'%s' from pid:'%d' \n",
-                               tempPacket.packet_body.charbody,tempPid);
-                    }
                 //send acks
-                if (send(new_fd, (void*)&tempPacket, sizeof(tempPacket), 0) == -1)
-                    perror("send");
+                if (send(new_fd, (void*)&tempPacket, sizeof(tempPacket), 0) == -1) {
+                    
+                        perror("send");
+                        break;
+                }
             
-                
-                printf("server: sent ACK type:'%d' to pid:'%d' from child pid:'%d' \n",
-                       tempType+3,tempPid,tempPacket.packet_head.sender_pid);
                 }
             }
             
+            closelog();
 			close(new_fd);
 			exit(0);
 		}

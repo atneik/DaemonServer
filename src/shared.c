@@ -7,11 +7,11 @@
 
 #include "shared.h"
 
-void generatePacket(PACKET *gPacket, int gType, pid_t sender){
+void generatePacket(PACKET *gPacket, int gType, pid_t sender, char * gMid){
     
     gPacket->packet_head.type=gType;
     gPacket->packet_head.sender_pid=sender;
-    
+    strcpy(gPacket->packet_head.mid,gMid);
 }
 
 int addMsg(PACKET *gPacket,char *gMsg){
