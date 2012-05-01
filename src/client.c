@@ -89,6 +89,7 @@ int main(int argc, char *argv[])
     
 	printf("client(%d): received ACK for reg from server(%d)\n",getpid(),tempPacket.packet_head.sender_pid);
     }
+    printf("Press any key to send msg: 'Hello Server!'");
     getchar();
     //Send msg
     generatePacket(&tempPacket, MSG_HEAD_NORMAL, getpid(), argv[2]);
@@ -108,6 +109,7 @@ int main(int argc, char *argv[])
         
         printf("client(%d): received ACK for msg from server(%d)\n",getpid(),tempPacket.packet_head.sender_pid);
     }
+    printf("Press any key to deregister.");
     getchar();
     
     //send dereg
